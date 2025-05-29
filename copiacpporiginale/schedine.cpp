@@ -52,11 +52,11 @@ void calcolaQuote(partita& p, const squadra& s1, const squadra& s2) {
     p.quotaX = min(10.0f, ((p.quota1 + p.quota2) / 2.0f) * 1.05f); // pareggio leggermente meno probabile
 }
 
-void simulaPartita(partita& p) {
-    p.goal1 = rand() % 6;
-    p.goal2 = rand() % 6;
-    p.tiri1 = rand() % 16 + 5;
-    p.tiri2 = rand() % 16 + 5;
+void simulaPartita(partita& p, const squadra& s1, const squadra& s2) {
+    p.goal1 = rand() % s1.overall/10;
+    p.goal2 = rand() % s2.overall/10;
+    p.tiri1 = rand() % p.goal1/2 + p.goal1;
+    p.tiri2 = rand() % p.goal2/2 + p.goal2;
     p.angolo1 = rand() % 10;
     p.angolo2 = rand() % 10;
     p.gialli1 = rand() % 4;
