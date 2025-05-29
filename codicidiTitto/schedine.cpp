@@ -63,10 +63,12 @@ void calcolaQuote(partita& p, const squadra& s1, const squadra& s2) {
 }
 
 void simulaPartita(partita& p, squadra& s1, squadra& s2) {
-	p.goal1 = rand() % ((s1.overall/10)+3);
-	p.goal2 = rand() % ((s2.overall/10)+3);
-	p.tiri1 = rand() % p.goal1 + rand()%6;
-	p.tiri2 = rand() % p.goal2 + rand()%6;
+	p.goal1 = rand() % ((s1.overall / 10) + 3);
+	p.goal2 = rand() % ((s2.overall / 10) + 3);
+
+	p.tiri1 = (p.goal1 > 0 ? rand() % p.goal1 : 0) + rand() % 6;
+	p.tiri2 = (p.goal2 > 0 ? rand() % p.goal2 : 0) + rand() % 6;
+
 	p.angolo1 = rand() % 10;
 	p.angolo2 = rand() % 10;
 	p.gialli1 = rand() % 4;
@@ -74,6 +76,7 @@ void simulaPartita(partita& p, squadra& s1, squadra& s2) {
 	p.rossi1 = rand() % 3;
 	p.rossi2 = rand() % 3;
 }
+
 
 int main() {
 	srand(time(0));
@@ -168,8 +171,8 @@ int main() {
 			stats[i].gialli += p.gialli1;
 			stats[j].gialli += p.gialli2;
 
-			stats[i].rossi = p.rossi1;
-			stats[j].rossi = p.rossi2;
+			stats[i].rossi += p.rossi1;
+			stats[j].rossi += p.rossi2;
 
 			if (risultato == '1') {
 				stats[i].vittorie++;
