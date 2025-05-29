@@ -5,6 +5,7 @@
 #include <ctime>
 #include <cmath>
 #include <iomanip>
+#include <unistd.h>
 using namespace std;
 
 struct squadra {
@@ -56,18 +57,19 @@ void calcolaQuote(partita& p, const squadra& s1, const squadra& s2) {
 	float prob1 = pow(overall1 / total, 1.35f);
 	float prob2 = pow(overall2 / total, 1.35f);
 
-	// Quote inverse delle probabilitC 
+	// Quote inverse delle probabilitC
 	p.quota1 = min(10.0f, max(1.05f, 1.0f / prob1));
 	p.quota2 = min(10.0f, max(1.05f, 1.0f / prob2));
 	p.quotaX = min(10.0f, ((p.quota1 + p.quota2) / 2.0f) * 1.05f); // pareggio leggermente meno probabile
 }
 
 void simulaPartita(partita& p, squadra& s1, squadra& s2) {
+
 	p.goal1 = rand() % ((s1.overall / 10) + 3);
 	p.goal2 = rand() % ((s2.overall / 10) + 3);
 
-	p.tiri1 = (p.goal1 > 0 ? rand() % p.goal1 : 0) + rand() % 6;
-	p.tiri2 = (p.goal2 > 0 ? rand() % p.goal2 : 0) + rand() % 6;
+	p.tiri1 = (p.goal1 > 0 ? p.goal1 : 0) + rand() % 6;
+	p.tiri2 = (p.goal2 > 0 ? p.goal2 : 0) + rand() % 6;
 
 	p.angolo1 = rand() % 10;
 	p.angolo2 = rand() % 10;
@@ -75,6 +77,51 @@ void simulaPartita(partita& p, squadra& s1, squadra& s2) {
 	p.gialli2 = rand() % 4;
 	p.rossi1 = rand() % 3;
 	p.rossi2 = rand() % 3;
+}
+
+void andamentoPartita(partita& p, squadra& s1, squadra& s2) {
+	int g1 = p.goal1;
+	int g2 = p.goal2;
+	int sceltaMsg=0;
+	
+	if(g1 != 0 || g2 != 0) {
+		for(int i = 0; i < p.goal1+p.goal2; i ++) {
+			if(g1>0 && g2>0) {
+				sceltaMsg = rand()%2;
+			}
+			else if(g1>0) {
+				sceltaMsg = 0;
+			}
+			else if(g2>0) {
+				sceltaMsg = 1;
+			}
+			else {
+			    break;
+			}
+			
+
+			if(sceltaMsg==0) {
+				sleep(2);
+				cout<<s1.nome<<" ha fatto 1 goal!"<<endl;
+				g1--;
+			}
+			else if(sceltaMsg==1) {
+				sleep(2);
+				cout<<s2.nome<<" ha fatto 1 goal!"<<endl;
+				g2--;
+			}
+		}
+	}
+	else {
+	    
+	    sleep(2);
+	    cout << "Nessuno ha fatto goal!"<<endl;
+	    
+	}
+	
+	sleep(2);
+	cout<<"Fischio finale! La partita finisce qui."<<endl;
+	sleep(2);
 }
 
 
@@ -98,8 +145,11 @@ int main() {
 
 		stats[i].nome = squadre[i].nome;
 
-		cout << "Numero giocatori: " << squadre[i].numero_giocatori
-		     << ", Overall: " << squadre[i].overall << endl;
+		cout<<"Calcolo informazioni..."<<endl;
+		sleep(1);
+		cout << "Numero giocatori: " << squadre[i].numero_giocatori << flush;
+		sleep(1);
+		cout << ", Overall: " << squadre[i].overall << endl;
 	}
 
 	float saldo;
@@ -120,9 +170,9 @@ int main() {
 			// Pre-partita
 			cout << "\n-----------------------------" << endl;
 			cout << p.squadra1 << " vs " << p.squadra2 << endl << endl;
-			cout << "Quote: " << setw(3) 
-			     << "1 = " << p.quota1 << endl << setw (11) 
-			     << "X = " << p.quotaX << endl << setw(11) 
+			cout << "Quote: " << setw(3)
+			     << "1 = " << p.quota1 << endl << setw (11)
+			     << "X = " << p.quotaX << endl << setw(11)
 			     << "2 = " << p.quota2 << endl;
 			cout << "Saldo attuale: " << saldo << " euro" << endl;
 			cout << "-----------------------------\n";
@@ -150,6 +200,9 @@ int main() {
 
 			// Simula partita
 			simulaPartita(p, squadre[i], squadre[j]);
+
+			// Andamento partita
+			andamentoPartita(p, squadre[i], squadre[j]);
 			cout << "\nRisultato: " << p.squadra1 << " " << p.goal1 << " - " << p.goal2 << " " << p.squadra2 << endl;
 
 			// Calcola risultato
@@ -210,6 +263,9 @@ int main() {
 			}
 		}
 	}
+	
+	sleep(2);
+	cout<<"Sono finite tutte le partite, vediamo le statistiche: "<<endl;
 
 	// Riepilogo finale
 	cout << "\n===== FINE GIOCO =====" << endl;
