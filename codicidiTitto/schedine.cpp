@@ -47,6 +47,24 @@ struct risultati {
 	int tiri = 0;
 };
 
+void stampaCoppa() {
+    cout << R"(
+       ___________
+      '._==_==_=_.'
+      .-\:      /-.
+     | (|:.     |) |
+      '-|:.     |-'
+        \::.    /
+         '::. .'
+           ) (
+         _.' '._
+        `"""""""`
+
+ COMPLIMENTI! HAI VINTO LA SCOMMESSA!
+    )" << endl;
+}
+
+
 void calcolaQuote(partita& p, const squadra& s1, const squadra& s2) {
 	float overall1 = s1.overall;
 	float overall2 = s2.overall;
@@ -80,49 +98,60 @@ void simulaPartita(partita& p, squadra& s1, squadra& s2) {
 }
 
 void andamentoPartita(partita& p, squadra& s1, squadra& s2) {
-	int g1 = p.goal1;
-	int g2 = p.goal2;
-	int sceltaMsg=0;
-	
-	if(g1 != 0 || g2 != 0) {
-		for(int i = 0; i < p.goal1+p.goal2; i ++) {
-			if(g1>0 && g2>0) {
-				sceltaMsg = rand()%2;
-			}
-			else if(g1>0) {
-				sceltaMsg = 0;
-			}
-			else if(g2>0) {
-				sceltaMsg = 1;
-			}
-			else {
-			    break;
-			}
-			
+    int g1 = p.goal1;
+    int g2 = p.goal2;
+    int t1 = p.tiri1;
+    int t2 = p.tiri2;
 
-			if(sceltaMsg==0) {
-				sleep(2);
-				cout<<s1.nome<<" ha fatto 1 goal!"<<endl;
-				g1--;
-			}
-			else if(sceltaMsg==1) {
-				sleep(2);
-				cout<<s2.nome<<" ha fatto 1 goal!"<<endl;
-				g2--;
-			}
-		}
-	}
-	else {
-	    
-	    sleep(2);
-	    cout << "Nessuno ha fatto goal!"<<endl;
-	    
-	}
-	
-	sleep(2);
-	cout<<"Fischio finale! La partita finisce qui."<<endl;
-	sleep(2);
+    while (t1 > 0 || t2 > 0) {
+        int turno = rand() % 2; // 0: squadra1, 1: squadra2
+
+        if (turno == 0 && t1 > 0) {
+            sleep(1);
+            cout << s1.nome << " va al tiro..." << flush;
+            sleep(1);
+            int esito = rand() % 2; // 0: no gol, 1: gol
+            if (esito == 1 && g1 > 0) {
+                cout << " GOL!" << endl;
+                g1--;
+            } else {
+                cout << " ...ma non trova la rete." << endl;
+            }
+            t1--;
+        } else if (turno == 1 && t2 > 0) {
+            sleep(1);
+            cout << s2.nome << " tenta il tiro..." << flush;
+            sleep(1);
+            int esito = rand() % 2; // 0: no gol, 1: gol
+            if (esito == 1 && g2 > 0) {
+                cout << " GOL!" << endl;
+                g2--;
+            } else {
+                cout << " ...ma il portiere para!" << endl;
+            }
+            t2--;
+        }
+    }
+
+    // Gestione goal residui (es. se gol > tiri)
+    if (g1 > 0) {
+        for (int i = 0; i < g1; i++) {
+            sleep(1);
+            cout << s1.nome << " segna nei minuti finali!" << endl;
+        }
+    }
+    if (g2 > 0) {
+        for (int i = 0; i < g2; i++) {
+            sleep(1);
+            cout << s2.nome << " trova la rete nei minuti di recupero!" << endl;
+        }
+    }
+
+    sleep(2);
+    cout << "\nFischio finale! La partita finisce qui." << endl;
+    sleep(2);
 }
+
 
 
 int main() {
@@ -255,7 +284,7 @@ int main() {
 					vincite_totali += vincita;
 					giocate_vinte++;
 
-					cout << "Hai vinto! Guadagni: " << vincita << " euro" << endl;
+					stampaCoppa();
 				} else {
 					cout << "Hai perso la scommessa." << endl;
 				}
