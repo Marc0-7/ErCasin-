@@ -17,19 +17,19 @@ struct squadra {
 struct partita {
 	string squadra1;
 	string squadra2;
-	int goal1;
-	int goal2;
-	int tiri1;
-	int tiri2;
-	int angolo1;
-	int angolo2;
-	int gialli1;
-	int gialli2;
-	int rossi1;
-	int rossi2;
-	float quota1;
-	float quota2;
-	float quotaX;
+	int goal1 = 0;
+	int goal2 = 0;
+	int tiri1 = 0;
+	int tiri2 = 0;
+	int angolo1 = 0;
+	int angolo2 = 0;
+	int gialli1 = 0;
+	int gialli2 = 0;
+	int rossi1 = 0;
+	int rossi2 = 0;
+	float quota1 = 0;
+	float quota2 = 0;
+	float quotaX = 0;
 	char giocata = '0'; // '1', '2', 'X', '0'
 	float puntata = 0;
 	bool vinta = false;
@@ -48,7 +48,7 @@ struct risultati {
 };
 
 void stampaCoppa() {
-    cout << R"(
+	cout << R"(
        ___________
       '._==_==_=_.'
       .-\:      /-.
@@ -81,77 +81,99 @@ void calcolaQuote(partita& p, const squadra& s1, const squadra& s2) {
 	p.quotaX = min(10.0f, ((p.quota1 + p.quota2) / 2.0f) * 1.05f); // pareggio leggermente meno probabile
 }
 
+
+void gestioneEventi(int minuto, partita& p, squadra& s1, squadra& s2) {
+	int evento = rand() % 100;
+
+	if (evento < 5) {
+		sleep(1);
+		cout << "[" << minuto << "''] " << s1.nome << " guadagna un calcio d'angolo." << endl;
+		p.angolo1++;
+	} else if (evento < 10) {
+		sleep(1);
+		cout << "[" << minuto << "''] " << s2.nome << " conquista un corner pericoloso!" << endl;
+		p.angolo2++;
+	} else if (evento < 12) {
+		sleep(1);
+		cout << "[" << minuto << "''] Ammonizione per un giocatore del " << s1.nome << "." << endl;
+		p.gialli1++;
+	} else if (evento < 14) {
+		sleep(1);
+		cout << "[" << minuto << "''] Cartellino giallo ad un giocatore di " << s2.nome << " per gioco scorretto." << endl;
+		p.gialli2++;
+	} else if (evento < 15) {
+		sleep(1);
+		cout << "[" << minuto << "''] Espulsione diretta per " << s1.nome << "!" << endl;
+		p.rossi1++;
+	} else if (evento < 16) {
+		sleep(1);
+		cout << "[" << minuto << "''] " << s2.nome << " prende un cartellino rosso!" << endl;
+		p.rossi2++;
+	} else if (evento < 30) {
+		sleep(1);
+		cout << "[" << minuto << "''] " << s1.nome << " tenta un tiro dalla distanza..." << flush;
+		sleep(1);
+		p.tiri1++;
+		float chance = (float)(rand() % 100) / 100.0f;
+		float goalProb = s1.overall / (s1.overall + s2.overall + 1.0f);
+		if (chance < goalProb * 0.4f) {
+			cout << " GOL!" << endl;
+			p.goal1++;
+		} else if (chance < goalProb * 0.6f) {
+			cout << " ...palo clamoroso!" << endl;
+		} else {
+			cout << " ...fuori di poco!" << endl;
+		}
+	} else if (evento < 44) {
+		cout << "[" << minuto << "''] Azione veloce del " << s2.nome << ", tiro improvviso..." << flush;
+		sleep(1);
+		p.tiri2++;
+		sleep(1);
+		float chance = (float)(rand() % 100) / 100.0f;
+		float goalProb = s2.overall / (s1.overall + s2.overall + 1.0f);
+		if (chance < goalProb * 0.4f) {
+			cout << " RETE!" << endl;
+			p.goal2++;
+		} else if (chance < goalProb * 0.6f) {
+			cout << " ...traversa!" << endl;
+		} else {
+			cout << " ...il portiere salva tutto!" << endl;
+		}
+	} else if (evento < 52) {
+		sleep(1);
+		cout << "[" << minuto << "''] Il ritmo si abbassa, le squadre si studiano." << endl;
+	} else if (evento < 58) {
+		sleep(1);
+		cout << "[" << minuto << "''] Che azione spettacolare del " << s1.nome << ", ma manca l'ultimo passaggio!" << endl;
+	} else if (evento < 64) {
+		sleep(1);
+		cout << "[" << minuto << "''] Giocata tecnica del " << s2.nome << ", ma c'è fuorigioco!" << endl;
+	} else if (evento < 68) {
+		sleep(1);
+		cout << "[" << minuto << "''] Il portiere del " << s1.nome << " compie un miracolo!" << endl;
+	} else if (evento < 72) {
+		sleep(1);
+		cout << "[" << minuto << "''] Sostituzione nel " << s2.nome << ", entra un volto nuovo per cambiare la partita." << endl;
+	} else if (evento < 74) {
+		sleep(1);
+		cout << "[" << minuto << "''] Infortunio a un giocatore del " << s1.nome << ", gioco momentaneamente fermo." << endl;
+	}
+	// 26% di probabilità che non succeda nulla
+}
+
+
 void simulaPartita(partita& p, squadra& s1, squadra& s2) {
+	cout << "\nInizia la partita tra " << s1.nome << " e " << s2.nome << "!" << endl;
+	sleep(2);
 
-	p.goal1 = rand() % ((s1.overall / 10) + 3);
-	p.goal2 = rand() % ((s2.overall / 10) + 3);
+	for (int minuto = 1; minuto <= 90; minuto += 5) {
+		gestioneEventi(minuto, p, s1, s2);
+		sleep(1);
+	}
 
-	p.tiri1 = (p.goal1 > 0 ? p.goal1 : 0) + rand() % 6;
-	p.tiri2 = (p.goal2 > 0 ? p.goal2 : 0) + rand() % 6;
-
-	p.angolo1 = rand() % 10;
-	p.angolo2 = rand() % 10;
-	p.gialli1 = rand() % 4;
-	p.gialli2 = rand() % 4;
-	p.rossi1 = rand() % 3;
-	p.rossi2 = rand() % 3;
+	cout << "\nFischio finale! La partita termina con il risultato:" << endl;
+	cout << s1.nome << " " << p.goal1 << " - " << p.goal2 << " " << s2.nome << endl;
 }
-
-void andamentoPartita(partita& p, squadra& s1, squadra& s2) {
-    int g1 = p.goal1;
-    int g2 = p.goal2;
-    int t1 = p.tiri1;
-    int t2 = p.tiri2;
-
-    while (t1 > 0 || t2 > 0) {
-        int turno = rand() % 2; // 0: squadra1, 1: squadra2
-
-        if (turno == 0 && t1 > 0) {
-            sleep(1);
-            cout << s1.nome << " va al tiro..." << flush;
-            sleep(1);
-            int esito = rand() % 2; // 0: no gol, 1: gol
-            if (esito == 1 && g1 > 0) {
-                cout << " GOL!" << endl;
-                g1--;
-            } else {
-                cout << " ...ma non trova la rete." << endl;
-            }
-            t1--;
-        } else if (turno == 1 && t2 > 0) {
-            sleep(1);
-            cout << s2.nome << " tenta il tiro..." << flush;
-            sleep(1);
-            int esito = rand() % 2; // 0: no gol, 1: gol
-            if (esito == 1 && g2 > 0) {
-                cout << " GOL!" << endl;
-                g2--;
-            } else {
-                cout << " ...ma il portiere para!" << endl;
-            }
-            t2--;
-        }
-    }
-
-    // Gestione goal residui (es. se gol > tiri)
-    if (g1 > 0) {
-        for (int i = 0; i < g1; i++) {
-            sleep(1);
-            cout << s1.nome << " segna nei minuti finali!" << endl;
-        }
-    }
-    if (g2 > 0) {
-        for (int i = 0; i < g2; i++) {
-            sleep(1);
-            cout << s2.nome << " trova la rete nei minuti di recupero!" << endl;
-        }
-    }
-
-    sleep(2);
-    cout << "\nFischio finale! La partita finisce qui." << endl;
-    sleep(2);
-}
-
 
 
 int main() {
@@ -166,7 +188,7 @@ int main() {
 
 	for (int i = 0; i < numero_squadre; i++) {
 		cout << "\nInserisci il nome della squadra " << i + 1 << ": ";
-		if(i==0)cin.ignore();
+		if (i == 0)cin.ignore();
 		getline(cin, squadre[i].nome);
 
 		squadre[i].numero_giocatori = rand() % 6 + 11;
@@ -174,7 +196,7 @@ int main() {
 
 		stats[i].nome = squadre[i].nome;
 
-		cout<<"Calcolo informazioni..."<<endl;
+		cout << "Calcolo informazioni..." << endl;
 		sleep(1);
 		cout << "Numero giocatori: " << squadre[i].numero_giocatori << flush;
 		sleep(1);
@@ -229,10 +251,6 @@ int main() {
 
 			// Simula partita
 			simulaPartita(p, squadre[i], squadre[j]);
-
-			// Andamento partita
-			andamentoPartita(p, squadre[i], squadre[j]);
-			cout << "\nRisultato: " << p.squadra1 << " " << p.goal1 << " - " << p.goal2 << " " << p.squadra2 << endl;
 
 			// Calcola risultato
 			char risultato;
@@ -292,9 +310,10 @@ int main() {
 			}
 		}
 	}
-	
+
 	sleep(2);
-	cout<<"Sono finite tutte le partite, vediamo le statistiche: "<<endl;
+	cout << "Sono finite tutte le partite, vediamo le statistiche: " << endl;
+	sleep(2);
 
 	// Riepilogo finale
 	cout << "\n===== FINE GIOCO =====" << endl;
