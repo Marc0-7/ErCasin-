@@ -7,4 +7,4 @@ Dai apparte i scherzi, qui
 
 Inseriscono tutti i loro codici e fanno disastri.
 
-> Attenzione: tenere fuori dalla portata dei bamnini 🔞.
+> Attenzione: tenere fuori dalla portata dei bambini 🔞.
